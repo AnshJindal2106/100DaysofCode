@@ -1,0 +1,1 @@
+export default function ScoreCard({ match }: { match: any }) { return <div className='glass p-4'><h3 className='text-xl font-semibold'>{match.homeTeam.shortName} vs {match.awayTeam.shortName}</h3><p className='text-slate-300'>{match.venue} • {match.format}</p></div>; }

@@ -1,0 +1,21 @@
+import express from 'express';
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import { createServer } from 'http';
+import { env } from './config/env.js';
+import { authRouter } from './routes/auth.routes.js';
+import { matchRouter } from './routes/match.routes.js';
+import { adminRouter } from './routes/admin.routes.js';
+import { initSocket } from './sockets/index.js';
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(rateLimit({ windowMs: 60_000, max: 200 }));
+app.get('/health', (_, res) => res.json({ ok: true }));
+app.use('/api/auth', authRouter);
+app.use('/api/matches', matchRouter);
+app.use('/api/admin', adminRouter);
+const server = createServer(app);
+initSocket(server);
+server.listen(env.port, () => console.log(`Server on ${env.port}`));
