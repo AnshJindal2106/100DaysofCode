@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function Home() { return <main className='p-4 md:p-8 space-y-6'><section className='glass p-8'><h1 className='text-4xl font-bold'>CricPulse Live</h1><p className='text-slate-300 mt-2'>Premium real-time cricket scoreboard platform.</p><Link href='/live/demo' className='mt-4 inline-block bg-accent px-5 py-2 rounded-xl'>Watch Live</Link></section><section className='grid md:grid-cols-3 gap-4'>{['Live Matches','Upcoming','Completed'].map(x=><div key={x} className='glass p-4 h-32'>{x}</div>)}</section></main>; }

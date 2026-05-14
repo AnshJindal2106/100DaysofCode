@@ -1,0 +1,47 @@
+generator client { provider = "prisma-client-js" }
+
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+
+enum UserRole { ADMIN USER }
+enum MatchStatus { UPCOMING LIVE COMPLETED }
+
+enum MatchFormat { T20 ODI TEST }
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  passwordHash String?
+  name String
+  role UserRole @default(USER)
+  googleId String? @unique
+  verified Boolean @default(false)
+  favorites Favorite[]
+  notifications Notification[]
+  createdAt DateTime @default(now())
+}
+
+model Team { id String @id @default(cuid()) name String shortName String logoUrl String? players Player[] homeMatches Match[] @relation("HomeTeam") awayMatches Match[] @relation("AwayTeam") }
+model Player { id String @id @default(cuid()) name String role String battingStyle String? bowlingStyle String? team Team @relation(fields:[teamId], references:[id]) teamId String stats Json? }
+model Tournament { id String @id @default(cuid()) name String season String pointsTable Json? matches Match[] }
+model Match {
+  id String @id @default(cuid())
+  homeTeam Team @relation("HomeTeam", fields:[homeTeamId], references:[id])
+  homeTeamId String
+  awayTeam Team @relation("AwayTeam", fields:[awayTeamId], references:[id])
+  awayTeamId String
+  tournament Tournament? @relation(fields:[tournamentId], references:[id])
+  tournamentId String?
+  venue String
+  status MatchStatus @default(UPCOMING)
+  format MatchFormat
+  startTime DateTime
+  tossInfo String?
+  result String?
+  innings Innings[]
+  commentary Commentary[]
+}
+model Innings { id String @id @default(cuid()) match Match @relation(fields:[matchId], references:[id]) matchId String battingTeamId String bowlingTeamId String totalRuns Int @default(0) wickets Int @default(0) overs Decimal @default(0) extras Json @default("{}") balls BallEvent[] }
+model BallEvent { id String @id @default(cuid()) innings Innings @relation(fields:[inningsId], references:[id]) inningsId String over Int ball Int runs Int extraType String? isWicket Boolean @default(false) description String createdAt DateTime @default(now()) }
+model Commentary { id String @id @default(cuid()) match Match @relation(fields:[matchId], references:[id]) matchId String over String text String createdAt DateTime @default(now()) }
+model Notification { id String @id @default(cuid()) user User @relation(fields:[userId], references:[id]) userId String title String message String read Boolean @default(false) createdAt DateTime @default(now()) }
+model Favorite { id String @id @default(cuid()) user User @relation(fields:[userId], references:[id]) userId String entityType String entityId String }
